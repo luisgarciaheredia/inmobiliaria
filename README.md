@@ -19,13 +19,14 @@ Second, summarize your results concisely. Make use of subheaders where appropria
 
 Provide an overview of the directory structure and files, for example:
 
+```
 ├── README.md
 ├── 📂admin
 ├── 📂app
 │   ├── 📂config
 │   └── 📂entities
 └── 📂resources
-
+```
 
 ## Running instructions
 
