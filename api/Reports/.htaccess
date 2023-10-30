@@ -1,0 +1,4 @@
+RewriteEngine On    
+# Turn on the rewriting engine
+RewriteRule ^lots_and_orders_by_project/ lots_and_orders_by_project.php [NC,L]
+RewriteRule ^orders_and_payments_by_project/ orders_and_payments_by_project.php [NC,L]
