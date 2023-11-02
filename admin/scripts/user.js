@@ -25,70 +25,54 @@ user_view = {
     },
     list: function () {
         var _self = this;
-
-        _self.toggleLoader(); // show loader
-        app.sendRequest("", "GET", _self.crud.readUrl, function (response) {
-
-            // verify response data
-            if (response.data[0] != undefined) {
-
-                // set rows from list elements
-                var keys = Object.keys(response.data[0]);
-                response.data.forEach(function (element) {
-
-                    // set data
-                    var tr = document.createElement("tr");
-                    keys.forEach(function (key) {
-                        var td = document.createElement("td");
-                        if (key == "status") {
-                            var color = element[key] == "1" ? "green" : "red";
-                            var label = element[key] == "1" ? "Activo" : "Inactivo";
-                            element[key] = '<span class="new badge ' + color + '" data-badge-caption="">' + label + '</span>'; // set red and green badges
-                        }
-                        td.innerHTML = element[key];
-                        tr.appendChild(td);
-                    });
-
-                    // set update and delete links
-                    var actionsTd = document.createElement("td");
-                    var id = element['id'];
-                    actionsTd.innerHTML = "<a class='action-update' data-id='" + id + "' href='#'><i class='material-icons'>edit</i></a>";
-                    actionsTd.innerHTML += "<a class='action-delete' data-id='" + id + "' href='#'><i class='material-icons'>delete</i></a>";
-                    tr.appendChild(actionsTd);
-
-                    // fill table
-                    document.querySelectorAll("table tbody")[0].appendChild(tr);
-                });
-
-                // set delete action
-                document.querySelectorAll(".action-delete").forEach(function (element) {
-                    element.addEventListener("click", function (event) {
-                        event.stopPropagation();
-                        event.preventDefault();
-                        if (confirm("¿Confirma que eliminará el registro?")) {
-                            _self.toggleLoader(); // show loader
-                            app.sendRequest("", "GET", _self.crud.deleteUrl + element.getAttribute("data-id"), function (response) {
-                                M.toast({ html: response.message + ' Recargando el listado.', classes: 'rounded', completeCallback: function () { window.location.href = "list"; } }); // refresh list
-                            });
-                        };
-                    });
-                });
-
-                // set update action
-                document.querySelectorAll(".action-update").forEach(function (element) {
-                    element.addEventListener("click", function (event) {
-                        event.stopPropagation();
-                        event.preventDefault();
-                        window.location.href = "update?id=" + element.getAttribute("data-id");
-                    });
-                });
-            } else {
-                M.toast({ html: response.message, classes: 'rounded' });
-            }
-            _self.toggleLoader(); // hide loader
-
-            // init DataTable
-            app.setDataTable(function () {
+        let table = new DataTable('table', {
+            ajax: _self.crud.readUrl,
+            columns: [
+                { data: 'id' },
+                { data: 'name' },
+                { data: 'email' },
+                { data: 'user' },
+                { data: 'password' },
+                { data: 'role_id' },
+                { data: 'role' },
+                { data: 'status' },
+                { data: 'created_at' },
+                { data: 'updated_at' },
+                { data: null }
+            ],
+            columnDefs: [
+                {
+                    render: function (data, type, row) {
+                        var color = data == "1" ? "green" : "red";
+                        var label = data == "1" ? "Activo" : "Inactivo";
+                        content = '<span class="new badge ' + color + '" data-badge-caption="">' + label + '</span>'; // set red and green badges
+                        return content;
+                    },
+                    targets: 7
+                },
+                {
+                    data: null,
+                    defaultContent: "<a class='action-update' href='#'><i class='material-icons'>edit</i></a><a class='action-delete' href='#'><i class='material-icons'>delete</i></a>",
+                    targets: -1
+                }
+            ],
+            responsive: true,
+            language: {
+                url: '../../resources/js/es-ES.json',
+                searchPlaceholder: "Escribe texto para buscar"
+            },
+            pageLength: 10,
+            lengthMenu: [5, 10, 15, 20, 25, 30, 35, 50, 100],
+            dom: 'Bfrtlip',
+            buttons: [{ extend: 'copy', title: 'Inmobiliaria Titanio' }, 'csv', { extend: 'excel', title: 'Inmobiliaria Titanio' }, { extend: 'pdf', title: 'Inmobiliaria Titanio' }, { extend: 'print', title: 'Inmobiliaria Titanio' }],
+            initComplete: function () {
+                document.querySelectorAll(".dataTables_filter input")[0].classList.add('browser-default');                          // not materialize styles
+                document.querySelectorAll(".dataTables_length select")[0].classList.add('browser-default');                         // not materialize styles
+                document.querySelectorAll(".buttons-wrapper")[0].prepend(document.querySelectorAll(".dataTables_filter")[0]);       // move search filter
+                document.querySelectorAll(".table-card")[0].after(document.querySelectorAll(".dataTables_info")[0]);                // move table info
+                document.querySelectorAll(".dataTables_filter input")[0].setAttribute("name", "dataTables_filter");                 // fix name attribute to prevent chrome warning
+                document.querySelectorAll(".table-card")[0].parentNode.insertBefore(document.querySelectorAll(".dt-buttons")[0], document.querySelectorAll(".table-card")[0]); // move buttons
+                document.querySelectorAll(".dt-buttons")[0].classList.add("hide"); // hide buttons
 
                 // responsive
                 myDataTable.columns(1).header()[0].classList.add('all');    // name
@@ -99,13 +83,33 @@ user_view = {
 
                 // hide columns
                 myDataTable.columns(5).visible(false); // role_id
-            });
+
+                _self.toggleLoader(); // hide loader
+            },
+            scrollX: true
+        });
+        window.myDataTable = table;
+
+        // set update action
+        $('table').on('click', '.action-update', function () {
+            window.location.href = "update?id=" + table.row($(this).parents('tr')).data().id;
+        });
+
+        // set delete action
+        $('table').on('click', '.action-delete', function () {
+            if (confirm("¿Confirma que eliminará el registro?")) {
+                _self.toggleLoader(); // show loader
+                app.sendRequest("", "GET", _self.crud.deleteUrl + table.row($(this).parents('tr')).data().id, function (response) {
+                    alert(response.message + ' Recargando el listado.');
+                    window.location.href = "list"; // refresh list
+                });
+            };
         });
     },
     toggleLoader: function () {
         var _self = this;
         var progress = document.querySelectorAll(".progress")[0];
-        var nextElement = document.querySelectorAll(".progress + div")[0];
+        var nextElement = document.querySelectorAll(".card")[0];
 
         // toggle
         if (progress.style.display == 'none') {
@@ -121,7 +125,6 @@ user_view = {
         var form = document.querySelectorAll(".container form")[0];
 
         // fill role select
-        _self.toggleLoader(); // show loader
         app.sendRequest("", "GET", '/inmobiliaria/api/Role/read/', function (response) {
 
             // verify response data
@@ -155,7 +158,8 @@ user_view = {
             parameters = "name=" + name + "&email=" + email + "&user=" + user + "&password=" + password + "&role_id=" + role_id + "&status=" + status;
             _self.toggleLoader(); // show loader
             app.sendRequest(parameters, "POST", _self.crud.createUrl, function (response) {
-                M.toast({ html: response.message + ' Lo estamos enviando al listado.', classes: 'rounded', completeCallback: function () { window.location.href = "list"; } }); // go to list
+                alert(response.message + ' Lo estamos enviando al listado.');
+                window.location.href = "list"; // go to list
             });
         });
     },
@@ -165,7 +169,6 @@ user_view = {
         id = (new URL(window.location.href)).searchParams.get("id");
 
         // fill role select
-        _self.toggleLoader(); // show loader
         app.sendRequest("", "GET", '/inmobiliaria/api/Role/read/', function (response) {
 
             // verify response data
@@ -220,7 +223,8 @@ user_view = {
             parameters = "id=" + id + "&name=" + name + "&email=" + email + "&user=" + user + "&password=" + password + "&role_id=" + role_id + "&status=" + status;
             _self.toggleLoader(); // show loader
             app.sendRequest(parameters, "POST", _self.crud.updateUrl, function (response) {
-                M.toast({ html: response.message + ' Lo estamos enviando al listado.', classes: 'rounded', completeCallback: function () { window.location.href = "list"; } }); // go to list
+                alert(response.message + ' Lo estamos enviando al listado.');
+                window.location.href = "list"; // go to list
             });
         });
 

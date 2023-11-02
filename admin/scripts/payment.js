@@ -20,6 +20,8 @@ payment_view = {
         var _self = this;
         var project_id = (new URL(window.location.href)).searchParams.get("project_id");
         var lot_id = (new URL(window.location.href)).searchParams.get("lot_id");
+
+        // set table
         let table = new DataTable('table', {
             ajax: _self.crud.readUrl,
             columns: [
@@ -79,23 +81,17 @@ payment_view = {
                 myDataTable.columns(1).header()[0].classList.add('none');   // order_id
                 myDataTable.columns(3).header()[0].classList.add('all');    // type
                 myDataTable.columns(4).header()[0].classList.add('all');    // number
-                //myDataTable.columns(5).header()[0].classList.add('none'); // amount
                 myDataTable.columns(9).header()[0].classList.add('all');    // stage
                 myDataTable.columns(11).header()[0].classList.add('none');  // invoice
                 myDataTable.columns(12).header()[0].classList.add('none');  // invoice_detail
-                myDataTable.columns(13).header()[0].classList.add('none');  // comments
-                //myDataTable.columns(14).header()[0].classList.add('all'); // status                
+                myDataTable.columns(13).header()[0].classList.add('none');  // comments           
                 myDataTable.columns(17).header()[0].classList.add('all');   // actions
                 myDataTable.responsive.rebuild();
                 myDataTable.responsive.recalc();
 
                 // hide columns
                 myDataTable.columns(0).visible(false);      // id
-                //myDataTable.columns(1).visible(false);    // order_id
                 myDataTable.columns(2).visible(false);      // lot_id
-                //myDataTable.columns(11).visible(false);   // invoice
-                //myDataTable.columns(12).visible(false);   // invoice_detail
-                //myDataTable.columns(13).visible(false);   // comments
                 myDataTable.columns(14).visible(false);     // status
 
                 document.querySelectorAll(".dataTables_info")[0].classList.add("hide"); // hide datatable info
@@ -202,16 +198,14 @@ payment_view = {
 
         // set update action
         $('table').on('click', '.action-update', function () {
-            var data = table.row($(this).parents('tr')).data();
-            window.location.href = "pay?id=" + data.id;
+            window.location.href = "pay?id=" + table.row($(this).parents('tr')).data().id;
         });
 
         // set delete action
         $('table').on('click', '.action-delete', function () {
-            var data = table.row($(this).parents('tr')).data();
             if (confirm("¿Confirma que eliminará el registro?")) {
                 _self.toggleLoader(); // show loader
-                app.sendRequest("", "GET", _self.crud.deleteUrl + data.id, function (response) {
+                app.sendRequest("", "GET", _self.crud.deleteUrl + table.row($(this).parents('tr')).data().id, function (response) {
                     alert(response.message + ' Recargando el listado.');
                     window.location.href = "list"; // refresh list
                 });

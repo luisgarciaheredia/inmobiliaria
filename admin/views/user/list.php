@@ -25,12 +25,12 @@
             </div>
 
             <!-- Loader -->
-            <div class="progress" style='display:none'>
+            <div class="progress">
                 <div class="indeterminate"></div>
             </div>
 
             <!-- List Table -->
-            <div class="overflow-x-auto card table-card">
+            <div class="overflow-x-auto card table-card" style='display:none'>
                 <table class="hover row-border nowrap order-column centered compact" style="width:100%">
                     <thead>
                         <tr>

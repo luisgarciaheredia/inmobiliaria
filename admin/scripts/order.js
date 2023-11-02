@@ -21,6 +21,8 @@ order_view = {
     },
     list: function () {
         var _self = this;
+
+        // set table
         let table = new DataTable('table', {
             ajax: _self.crud.readUrl,
             columns: [
@@ -103,16 +105,14 @@ order_view = {
 
         // set update action
         $('table').on('click', '.action-update', function () {
-            var data = table.row($(this).parents('tr')).data();
-            window.location.href = "update?id=" + data.id;
+            window.location.href = "update?id=" + table.row($(this).parents('tr')).data().id;
         });
 
         // set delete action
         $('table').on('click', '.action-delete', function () {
-            var data = table.row($(this).parents('tr')).data();
             if (confirm("¿Confirma que eliminará el registro?")) {
                 _self.toggleLoader(); // show loader
-                app.sendRequest("", "GET", _self.crud.deleteUrl + data.id, function (response) {
+                app.sendRequest("", "GET", _self.crud.deleteUrl + table.row($(this).parents('tr')).data().id, function (response) {
                     alert(response.message + ' Recargando el listado.');
                     window.location.href = "list"; // refresh list
                 });
@@ -162,7 +162,7 @@ order_view = {
                 // init select2 plugin
                 $('#project_id').select2({
 
-                    // fill lot select
+                    // set change action
                     templateSelection: function (state) {
 
                         // clean select
@@ -171,7 +171,9 @@ order_view = {
                         order_form.querySelectorAll("#lot_id option").forEach(function (element, index) {
                             if (index > 0) { element.remove(); }
                         });
-                        //_self.toggleLoader(); // show loader
+
+                        // fill lot select
+                        _self.toggleLoader(); // show loader
                         app.sendRequest("", "GET", '/inmobiliaria/api/Lot/read/unsold', function (response) {
 
                             // set options to select
@@ -186,7 +188,7 @@ order_view = {
                                 }
                             });
                             $('#lot_id').select2({}); // init select2 plugin
-                            //_self.toggleLoader(); // hide loader
+                            _self.toggleLoader(); // hide loader
                         });
                         return state.text; // return label to show in select
                     }
@@ -219,7 +221,7 @@ order_view = {
             }
         });
 
-        // set order_form submit action
+        // set order_form continue button action
         order_form.addEventListener("submit", function (event) {
             event.stopPropagation();
             event.preventDefault();
@@ -229,34 +231,34 @@ order_view = {
             var initial_payment = generate_payments_form.querySelectorAll("#initial_payment")[0];
             var other_payments_quantity = generate_payments_form.querySelectorAll("#other_payments_quantity")[0];
 
-            order_form.querySelectorAll("button[type=submit]")[0].parentNode.parentNode.classList.add("hide"); // hide order_form buttons
-            document.querySelectorAll("#payment_title")[0].classList.remove("hide");    // show generate_payments title
-            generate_payments_form.parentNode.classList.remove("hide");                 // show generate_payments_form
+            order_form.querySelectorAll("button[type=submit]")[0].parentNode.parentNode.classList.add("hide");  // hide order_form buttons
+            document.querySelectorAll("#payment_title")[0].classList.remove("hide");                            // show generate_payments title
+            generate_payments_form.parentNode.classList.remove("hide");                                         // show generate_payments_form
             order_form.querySelectorAll("input[name=type]").forEach(function (element) {
                 element.addEventListener('change', function () {
-                    price.disabled = "disabled";                                        // lock price
+                    price.disabled = "disabled";                                                                // lock price
                     if (order_form.querySelectorAll('input[name=type]:checked')[0].value == "Contado") {
-                        initial_payment.value = price.value;                            // same price value
-                        initial_payment.disabled = "disabled";                          // lock initial_payment
-                        other_payments_quantity.value = 0;                              // reset other_payments
-                        other_payments_quantity.parentNode.classList.add("hide");       // hide other_payments
+                        initial_payment.value = price.value;                                                    // same price value
+                        initial_payment.disabled = "disabled";                                                  // lock initial_payment
+                        other_payments_quantity.value = 0;                                                      // reset other_payments
+                        other_payments_quantity.parentNode.classList.add("hide");                               // hide other_payments
                     } else {
-                        initial_payment.value = 100;                                    // default initial_payment
-                        initial_payment.removeAttribute("disabled");                    // unlock initial_payment
-                        other_payments_quantity.value = 2;                              // reset other_payments
-                        other_payments_quantity.parentNode.classList.remove("hide");    // show other_payments
+                        initial_payment.value = 100;                                                            // default initial_payment
+                        initial_payment.removeAttribute("disabled");                                            // unlock initial_payment
+                        other_payments_quantity.value = 2;                                                      // reset other_payments
+                        other_payments_quantity.parentNode.classList.remove("hide");                            // show other_payments
                     }
-                    M.updateTextFields();                                               // update materialize text input
-                    payment_form.parentNode.classList.add("hide");                      // hide payment_form
+                    M.updateTextFields();                                                                       // update materialize text input
+                    payment_form.parentNode.classList.add("hide");                                              // hide payment_form
                 });
-                element.dispatchEvent(new Event("change"));                             // fire event
+                element.dispatchEvent(new Event("change"));                                                     // fire event
             });
         });
 
         // set generate_payments button action
         generate_payments_form.querySelectorAll("#generate_payments_btn")[0].addEventListener("click", function () {
 
-            // variable
+            // variables
             var price = parseFloat(order_form.querySelectorAll("#price")[0].value);
             var initial_payment = parseFloat(generate_payments_form.querySelectorAll("#initial_payment")[0].value);
             var initial_payment_quantity = parseInt(generate_payments_form.querySelectorAll("#initial_payment_quantity")[0].value);
@@ -492,9 +494,9 @@ order_view = {
 
                         // set form data
                         $('#project_id').val(response.data[0].project_id).trigger('change');
-                        $('#lot_id').val(response.data[0].lot_id).trigger('change');
-                        //order_form.querySelectorAll("#lot_id")[0].value = response.data[0].lot_id;
-                        //order_form.querySelectorAll("#lot_id")[0].dispatchEvent(new Event('change')); // update selected option
+                        window.setTimeout(function () {
+                            $('#lot_id').val(response.data[0].lot_id).trigger('change');
+                        }, 250);
                         $('#owner_id').val(response.data[0].owner_id).trigger('change');
                         order_form.querySelectorAll("#user_id")[0].value = response.data[0].user_id;
                         order_form.querySelectorAll("#price")[0].value = response.data[0].price;

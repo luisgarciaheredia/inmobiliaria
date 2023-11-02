@@ -80,16 +80,14 @@ project_view = {
 
         // set update action
         $('table').on('click', '.action-update', function () {
-            var data = table.row($(this).parents('tr')).data();
-            window.location.href = "update?id=" + data.id;
+            window.location.href = "update?id=" + table.row($(this).parents('tr')).data().id;
         });
 
         // set delete action
         $('table').on('click', '.action-delete', function () {
-            var data = table.row($(this).parents('tr')).data();
             if (confirm("¿Confirma que eliminará el registro?")) {
                 _self.toggleLoader(); // show loader
-                app.sendRequest("", "GET", _self.crud.deleteUrl + data.id, function (response) {
+                app.sendRequest("", "GET", _self.crud.deleteUrl + table.row($(this).parents('tr')).data().id, function (response) {
                     alert(response.message + ' Recargando el listado.');
                     window.location.href = "list"; // refresh list
                 });

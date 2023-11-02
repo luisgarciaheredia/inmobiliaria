@@ -22,12 +22,12 @@
             </div>
 
             <!-- Loader -->
-            <div class="progress" style='display:none'>
+            <div class="progress">
                 <div class="indeterminate"></div>
             </div>
 
             <!-- Form -->
-            <div class="card">
+            <div class="card" style='display:none'>
                 <form>
                     <div class="row">
                         <div class="input-field col s12">

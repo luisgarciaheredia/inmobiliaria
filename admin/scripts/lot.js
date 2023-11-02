@@ -72,14 +72,16 @@ lot_view = {
                 document.querySelectorAll(".dt-buttons")[0].classList.add("hide"); // hide buttons
 
                 // responsive
-                myDataTable.columns(2).header()[0].classList.add('all');    // project
+                myDataTable.columns(2).header()[0].classList.add('all');   // project
                 myDataTable.columns(3).header()[0].classList.add('all');   // block
                 myDataTable.columns(4).header()[0].classList.add('all');   // lot
-
-                myDataTable.columns(5).header()[0].classList.add('all');    // status                
-                myDataTable.columns(8).header()[0].classList.add('all');    // actions
+                myDataTable.columns(5).header()[0].classList.add('all');   // status                
+                myDataTable.columns(8).header()[0].classList.add('all');   // actions
                 myDataTable.responsive.rebuild();
                 myDataTable.responsive.recalc();
+
+                // hide columns
+                myDataTable.columns(1).visible(false); // project_id
 
                 _self.toggleLoader(); // hide loader
             },
@@ -89,104 +91,19 @@ lot_view = {
 
         // set update action
         $('table').on('click', '.action-update', function () {
-            var data = table.row($(this).parents('tr')).data();
-            window.location.href = "update?id=" + data.id;
+            window.location.href = "update?id=" + table.row($(this).parents('tr')).data().id;
         });
 
         // set delete action
         $('table').on('click', '.action-delete', function () {
-            var data = table.row($(this).parents('tr')).data();
             if (confirm("¿Confirma que eliminará el registro?")) {
                 _self.toggleLoader(); // show loader
-                app.sendRequest("", "GET", _self.crud.deleteUrl + data.id, function (response) {
+                app.sendRequest("", "GET", _self.crud.deleteUrl + table.row($(this).parents('tr')).data().id, function (response) {
                     alert(response.message + ' Recargando el listado.');
                     window.location.href = "list"; // refresh list
                 });
             };
         });
-
-
-        /*
-                var _self = this;
-        
-                app.sendRequest("", "GET", _self.crud.readUrl, function (response) {
-        
-                    // verify response data
-                    if (response.data[0] != undefined) {
-        
-                        // set rows from list elements
-                        var keys = Object.keys(response.data[0]);
-                        response.data.forEach(function (element) {
-        
-                            // set data
-                            var tr = document.createElement("tr");
-                            keys.forEach(function (key) {
-                                var td = document.createElement("td");
-                                if (key == "status") {
-                                    var color = element[key] == "1" ? "green" : "red";
-                                    var label = element[key] == "1" ? "Activo" : "Inactivo";
-                                    element[key] = '<span class="new badge ' + color + '" data-badge-caption="">' + label + '</span>'; // set red and green badges
-                                }
-                                td.innerHTML = element[key];
-                                tr.appendChild(td);
-                            });
-        
-                            // set update and delete links
-                            var actionsTd = document.createElement("td");
-                            var id = element['id'];
-                            actionsTd.innerHTML = "<a class='action-update' data-id='" + id + "' href='#'><i class='material-icons'>edit</i></a>";
-                            actionsTd.innerHTML += "<a class='action-delete' data-id='" + id + "' href='#'><i class='material-icons'>delete</i></a>";
-                            tr.appendChild(actionsTd);
-        
-                            // fill table
-                            document.querySelectorAll("table tbody")[0].appendChild(tr);
-                        });
-        
-                        // set delete action
-                        document.querySelectorAll(".action-delete").forEach(function (element) {
-                            element.addEventListener("click", function (event) {
-                                event.stopPropagation();
-                                event.preventDefault();
-                                if (confirm("¿Confirma que eliminará el registro?")) {
-                                    _self.toggleLoader(); // show loader
-                                    app.sendRequest("", "GET", _self.crud.deleteUrl + element.getAttribute("data-id"), function (response) {
-                                        alert(response.message + ' Recargando el listado.');
-                                        window.location.href = "list"; // refresh list
-                                    });
-                                };
-                            });
-                        });
-        
-                        // set update action
-                        document.querySelectorAll(".action-update").forEach(function (element) {
-                            element.addEventListener("click", function (event) {
-                                event.stopPropagation();
-                                event.preventDefault();
-                                window.location.href = "update?id=" + element.getAttribute("data-id");
-                            });
-                        });
-                    } else {
-                        M.toast({ html: response.message, classes: 'rounded' });
-                    }
-        
-                    // init DataTable
-                    app.setDataTable(function () { 
-        
-                        // responsive
-                        myDataTable.columns(2).header()[0].classList.add('all');    // project
-                        myDataTable.columns(3).header()[0].classList.add('all');    // block
-                        myDataTable.columns(4).header()[0].classList.add('all');    // lot
-                        myDataTable.columns(5).header()[0].classList.add('all');    // status                
-                        myDataTable.columns(8).header()[0].classList.add('all');    // actions
-                        myDataTable.responsive.rebuild();
-                        myDataTable.responsive.recalc();
-        
-                        // hide columns
-                        myDataTable.columns(1).visible(false); // project_id
-                    });
-        
-                    _self.toggleLoader(); // hide loader
-                });*/
     },
     toggleLoader: function () {
         var _self = this;
