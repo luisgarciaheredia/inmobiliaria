@@ -1,4 +1,11 @@
-# Project title
+# FAST a digital sales transformation software for the real estate industry
+
+<p align="center">
+<img src="https://img.shields.io/badge/license-Apache-green" alt="License"></a>
+<img src="https://img.shields.io/badge/version-1.0-blue" alt="Version"></a>
+<a href="https://doi.org/10.5281/zenodo.10071931"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.10071931.svg" alt="DOI"></a>
+</p>
+
 
 A subtitle that describes your project, e.g., research question23
 
