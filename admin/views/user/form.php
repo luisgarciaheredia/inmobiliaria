@@ -27,7 +27,7 @@
             </div>
 
             <!-- Form -->
-            <div class="card" style='display:none'>
+            <div class="card user-card" style='display:none'>
                 <form>
                     <div class="row">
                         <div class="input-field col s12">

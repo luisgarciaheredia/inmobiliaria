@@ -71,6 +71,7 @@
                                     <th>Monto Pagado</th>
                                     <th>Saldo</th>
                                     <th>Estado</th>
+                                    <th>Mes</th>
                                 </tr>
                             </thead>
                             <tbody>

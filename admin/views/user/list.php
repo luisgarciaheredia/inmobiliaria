@@ -30,7 +30,7 @@
             </div>
 
             <!-- List Table -->
-            <div class="overflow-x-auto card table-card" style='display:none'>
+            <div class="overflow-x-auto card table-card user-card" style='display:none'>
                 <table class="hover row-border nowrap order-column centered compact" style="width:100%">
                     <thead>
                         <tr>

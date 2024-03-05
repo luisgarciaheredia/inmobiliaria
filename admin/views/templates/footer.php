@@ -21,5 +21,8 @@
 <!-- Import Select2 script -->
 <script type="text/javascript" src="../../resources/js/select2.min.js"></script>
 
+<!-- Import Google Charts script -->
+<script type="text/javascript" src="../../resources/js/google_charts.js"></script>
+
 <!-- Import app scripts -->
 <script type="text/javascript" src="../../resources/js/scripts.js"></script>

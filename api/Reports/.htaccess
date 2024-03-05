@@ -2,3 +2,5 @@ RewriteEngine On
 # Turn on the rewriting engine
 RewriteRule ^lots_and_orders_by_project/ lots_and_orders_by_project.php [NC,L]
 RewriteRule ^orders_and_payments_by_project/ orders_and_payments_by_project.php [NC,L]
+RewriteRule ^unsold_lots_by_proyect/ unsold_lots_by_proyect.php [NC,L]
+RewriteRule ^balances_by_owner/ balances_by_owner.php [NC,L]

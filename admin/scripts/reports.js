@@ -32,6 +32,7 @@ reports_view = {
         var _self = this;
         var form = document.querySelectorAll(".container form")[0];
 
+        // set default date
         form.querySelectorAll("#date")[0].value = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Lima' })).toISOString().slice(0, 10);
 
         // fill project select
@@ -57,7 +58,7 @@ reports_view = {
             }
         });
 
-        // set generate report button action
+        // set generate-report button action
         form.addEventListener("submit", function (event) {
             event.stopPropagation();
             event.preventDefault();
@@ -166,6 +167,9 @@ reports_view = {
         var _self = this;
         var form = document.querySelectorAll(".container form")[0];
 
+        // set default date
+        form.querySelectorAll("#date")[0].value = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Lima' })).toISOString().slice(0, 10);
+
         // fill project select
         _self.toggleLoader(); // show loader
         app.sendRequest("", "GET", '/inmobiliaria/api/Project/read/', function (response) {
@@ -211,13 +215,32 @@ reports_view = {
                 // verify response data
                 if (response.data[0] != undefined) {
 
+
+                    var data = Array();
+
+
                     // set rows from list elements
                     var keys = Object.keys(response.data[0]);
                     response.data.forEach(function (element) {
 
                         // set data
                         var tr = document.createElement("tr");
-                        keys.forEach(function (key) {
+
+                        var row = Array();
+
+                        keys.forEach(function (key, index) {
+
+                            //data[index] = Array();
+
+                            if (key == 'due_date_month') {
+                                row['key'] = element[key];
+                            }
+
+                            if (key == 'balance') {
+                                row['val'] = parseFloat(element[key]);
+                            }
+
+
                             var td = document.createElement("td");
                             if (key == "stage") {
                                 var color = element[key] == "Pagado" ? "green" : (element[key] == "Vencido" ? "red" : "amber accent-4");
@@ -226,10 +249,32 @@ reports_view = {
                             td.innerHTML = element[key];
                             tr.appendChild(td);
                         });
+                        data.push(row);
 
                         // fill table
                         document.querySelectorAll("table tbody")[0].appendChild(tr);
                     });
+
+                    data.sort();
+                    const output = data.reduce((accumulator, cur) => {
+                        let date = cur.key;
+                        let found = accumulator.find(elem => elem.key === date)
+                        if (found) found.val += cur.val;
+                        else accumulator.push(cur);
+                        return accumulator;
+                    }, []);
+
+                    console.log(data);
+                    console.log(output);
+
+                    var output2 = Array();
+                    output2.push(['Año y Mes', 'Saldo']);
+                    output.sort();
+                    output.forEach(function (element, index) {
+                        output2.push([element.key, element.val]);
+                    });
+                    console.log(output2);
+
                 } else {
                     M.toast({ html: response.message, classes: 'rounded' });
                 }
@@ -250,6 +295,7 @@ reports_view = {
                     // hide columns
                     myDataTable.columns(0).visible(false); // project_id
                     myDataTable.columns(1).visible(false); // project
+                    myDataTable.columns(12).visible(false); // project
 
 
                     // order
@@ -268,17 +314,11 @@ reports_view = {
 
 
                 function drawChart() {
-                    var data = google.visualization.arrayToDataTable([
-                        ['Año', 'Saldo'],
-                        ['2020', 1272],
-                        ['2021', 1354],
-                        ['2022', 1760],
-                        ['2023', 2115]
-                    ]);
+                    var data = google.visualization.arrayToDataTable(output2);
 
                     var options = {
                         chart: {
-                            title: 'Saldos por Año'
+                            title: 'Saldos por Año y Mes'
                             //,
                             //subtitle: 'Sales, Expenses, and Profit: 2014-2017',
                         }

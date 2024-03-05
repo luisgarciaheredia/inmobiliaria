@@ -4,7 +4,9 @@ user_view = {
         readUrl: '/inmobiliaria/api/User/read/',
         updateUrl: '/inmobiliaria/api/User/update/',
         deleteUrl: '/inmobiliaria/api/User/delete/',
-        loginUrl: '/inmobiliaria/api/User/login/'
+        loginUrl: '/inmobiliaria/api/User/login/',
+        unsold_lots_by_proyect: '/inmobiliaria/api/Reports/unsold_lots_by_proyect/',
+        balances_by_owner: '/inmobiliaria/api/Reports/balances_by_owner/'
     },
     init: function () {
         var _self = this;
@@ -20,6 +22,9 @@ user_view = {
                 break;
             case '/inmobiliaria/admin/user/login':
                 _self.login();
+                break;
+            case '/inmobiliaria/admin/user/dashboard':
+                _self.dashboard();
                 break;
         }
     },
@@ -109,7 +114,7 @@ user_view = {
     toggleLoader: function () {
         var _self = this;
         var progress = document.querySelectorAll(".progress")[0];
-        var nextElement = document.querySelectorAll(".card")[0];
+        var nextElement = document.querySelectorAll(".user-card")[0];
 
         // toggle
         if (progress.style.display == 'none') {
@@ -251,6 +256,114 @@ user_view = {
                 }
             });
         });
+    },
+    dashboard: function () {
+        var _self = this;
+
+        // set form data
+        app.sendRequest("", "GET", _self.crud.unsold_lots_by_proyect, function (response) {
+
+            // verify response data
+            if (response.data[0] != undefined) {
+
+                var unsold_lots_by_proyect_data = Array();
+                unsold_lots_by_proyect_data.push(['Proyecto', 'Lotes faltantes', { role: 'annotation' }]);
+                response.data.forEach(function (element) {
+                    unsold_lots_by_proyect_data.push([element.project, element.unsold_lots, element.unsold_lots]);
+                });
+                console.log(unsold_lots_by_proyect_data);
+
+                google.charts.load('current', { packages: ['corechart', 'bar'] });
+                google.charts.setOnLoadCallback(drawBasic);
+
+                function drawBasic() {
+
+                    var data = google.visualization.arrayToDataTable(unsold_lots_by_proyect_data);
+
+                    /*data.setColumns([0, 1,
+                        { calc: "stringify",
+                          sourceColumn: 1,
+                          type: "string",
+                          role: "annotation" },
+                        2])*/
+
+                    var options = {
+                        chartArea: { left:'35%',top:0,width:'60%',height:'90%'},
+                        /*hAxis: {
+                            minValue: 0
+                        },*/
+                        width: 500,
+                        height: 250,
+                        
+        bar: {groupWidth: "200%"},
+                        legend: {
+                            position: 'none'
+                        }
+
+                    };
+
+                    var chart = new google.visualization.BarChart(document.getElementById('unsold_lots_by_proyect_data_chart_div'));
+
+                    chart.draw(data, options);
+                }
+
+
+
+                app.sendRequest("", "GET", _self.crud.balances_by_owner, function (response) {
+
+                    // verify response data
+                    if (response.data[0] != undefined) {
+        
+                        var balances_by_owner_data = Array();
+                        balances_by_owner_data.push(['Propietario', 'Saldo', { role: 'annotation' }]);
+                        response.data.forEach(function (element) {
+                            balances_by_owner_data.push([element.name, element.balance, element.balance]);
+                        });
+                        console.log(balances_by_owner_data);
+        
+        
+                        google.charts.load('current', { packages: ['corechart', 'bar'] });
+                        google.charts.setOnLoadCallback(drawBasic);
+        
+                        function drawBasic() {
+        
+                            var data = google.visualization.arrayToDataTable(balances_by_owner_data);
+        
+                            var options = {
+                                chartArea: { left:'45%',top:0,width:'50%',height:'90%'},
+                                hAxis: {
+                                    minValue: 0
+                                },
+                                /*'width':400,*/
+                        width: 500,
+                        height: 250,
+                        bar: {groupWidth: "200%"},
+                                        legend: {
+                                            position: 'none'
+                                        }
+                            };
+        
+                            var chart = new google.visualization.BarChart(document.getElementById('balances_by_owner_data_chart_div'));
+        
+                            chart.draw(data, options);
+                        }
+        
+                    } else {
+                        M.toast({ html: response.message + ' Lo estamos enviando al listado.', classes: 'rounded', completeCallback: function () { window.location.href = "list"; } });
+                    }
+                });
+
+
+                _self.toggleLoader(); // hide loader
+            } else {
+                M.toast({ html: response.message + ' Lo estamos enviando al listado.', classes: 'rounded', completeCallback: function () { window.location.href = "list"; } });
+            }
+        });
+
+
+
+
+
     }
 };
 user_view.init();

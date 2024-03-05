@@ -27,7 +27,7 @@
             </div>
 
             <!-- Form -->
-            <div class="card">
+            <div class="card user-card">
                 <form>
                     <div class="row">
                         <div class="input-field col s12">
